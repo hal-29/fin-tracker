@@ -7,24 +7,43 @@ import { Type } from "@google/genai";
 export const exportTransactionsCSVFunctionDeclaration = {
   name: "export_transactions_csv",
   description:
-    "Export all transactions as a CSV and return status of the upload.",
+    "Export all transactions within a specified time period as a CSV and return status of the upload.",
   parameters: {
     type: Type.OBJECT,
-    properties: {},
+    properties: {
+      fromDate: {
+        type: Type.STRING,
+        description:
+          "Start date for filtering transactions to export . Format: UTC ISO 8601 (e.g., 2023-01-01T00:00:00Z).",
+      },
+      toDate: {
+        type: Type.STRING,
+        description:
+          "End date for filtering transactions to export . Format: UTC ISO 8601 (e.g., 2023-01-31T23:59:59Z).",
+      },
+    },
   },
   required: [],
 };
 
-export async function handleExportTransactionsCSV() {
-  const url = await exportTransactionsToCSV();
-  return `CSV export is ready: ${url}`;
-}
-
-export default async function exportTransactionsToCSV(): Promise<
-  string | null
-> {
+export default async function exportTransactionsToCSV({
+  fromDate,
+  toDate,
+}: {
+  fromDate?: string;
+  toDate?: string;
+}): Promise<string | null> {
+  console.log(
+    `EXPORTING TRANSACTIONS TO CSV: ${fromDate || ""} to ${toDate || ""}`
+  );
   try {
     const transactions = await prisma.transaction.findMany({
+      where: {
+        date: {
+          gte: fromDate,
+          lte: toDate,
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
 

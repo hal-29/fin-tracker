@@ -19,6 +19,13 @@ import {
 import exportTransactionsToCSV, {
   exportTransactionsCSVFunctionDeclaration,
 } from "@/utils/exportTransactionsToCSV";
+import {
+  convertTransactionCurrency,
+  convertTransactionCurrencyFunctionDeclaration,
+} from "@/utils/convertTransactionCurrency";
+import getExchangeRate, {
+  getExchangeRateFunctionDeclaration,
+} from "@/utils/getCurrencyRate";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -33,6 +40,8 @@ const config = {
         getCurrentDateFunctionDeclaration,
         calculateSumFunctionDeclaration,
         exportTransactionsCSVFunctionDeclaration,
+        convertTransactionCurrencyFunctionDeclaration,
+        getExchangeRateFunctionDeclaration,
       ],
     },
   ],
@@ -114,10 +123,27 @@ export async function POST(req: NextRequest) {
         );
         break;
       case "export_transactions_csv":
-        downloadableLink = await exportTransactionsToCSV();
+        downloadableLink = await exportTransactionsToCSV(toolCall.args as {});
         result = downloadableLink
           ? "File exported sucessfully."
           : "Failed to export files.";
+        break;
+      case "convert_transaction_currency":
+        result = await convertTransactionCurrency(
+          toolCall.args as {
+            baseCurrency: string;
+            targetCurrency: string;
+            rate: number;
+          }
+        );
+        break;
+      case "get_exchange_rate":
+        result = await getExchangeRate(
+          toolCall.args as {
+            fromCurrency: string;
+            toCurrency: string;
+          }
+        );
         break;
       default:
         return NextResponse.json(
@@ -126,13 +152,11 @@ export async function POST(req: NextRequest) {
         );
     }
 
-    // Push Gemini's tool call message (optional)
     contents.push({
       role: "model",
       parts: [{ text: JSON.stringify(toolCall, null, 2) }],
     });
 
-    // Push tool result back to Gemini
     contents.push({
       role: "user",
       parts: [
@@ -143,7 +167,6 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  // Save both user & assistant messages
   await prisma.message.create({
     data: {
       sender: "USER",
