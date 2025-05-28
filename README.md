@@ -2,6 +2,8 @@
 
 This is a smart, LLM-powered financial assistant that allows users to log expenses, track spending, and generate financial reports using natural language. Powered by Google's **Gemini 2.0** with function calling, it integrates real-time currency conversion, data storage, and file export capabilities.
 
+### Powerpoint presentation can be found [here](https://www.canva.com/design/DAGow1B5HBQ/az3fyYzeZhp_6L1EAF0UPg/view?utm_content=DAGow1B5HBQ&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h0a8e39d909)
+
 ## 🚀 Features
 
 - **Natural Language Transaction Logging**  
@@ -49,6 +51,7 @@ This is a smart, LLM-powered financial assistant that allows users to log expens
 
    ```env
    GEMINI_API_KEY=your_google_genai_key
+   BLOB_READ_WRITE_TOKEN=your_vercel_storage_secret_key
    ```
 
 4. **Push Prisma schema and seed**
