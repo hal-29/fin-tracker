@@ -4,14 +4,27 @@ import MessageThread from "@/components/MessageThread";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Prisma } from "@/db";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Send } from "lucide-react";
-import { useState } from "react";
+import { Send, Mic } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useSpeechRecognition } from "@/hooks/useSpeechRecognition";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 function Home() {
   const [message, setMessage] = useState("");
+  const [showModal, setShowModal] = useState(false);
   const queryClient = useQueryClient();
+  const { transcript, startListening, stopListening, listening } =
+    useSpeechRecognition();
+
+  useEffect(() => {
+    if (transcript && listening === false) {
+      setMessage(transcript);
+      setShowModal(false);
+    }
+  }, [transcript, listening]);
 
   const query = useQuery({
     queryKey: ["messages"],
@@ -43,15 +56,11 @@ function Home() {
       return data;
     },
     onMutate: async (newMessage) => {
-      // Cancel outgoing refetches
       await queryClient.cancelQueries({ queryKey: ["messages"] });
-
-      // Snapshot previous value
       const previousMessages = queryClient.getQueryData<
         Prisma.MessageUncheckedCreateInput[]
       >(["messages"]);
 
-      // Optimistically update
       if (previousMessages) {
         queryClient.setQueryData(
           ["messages"],
@@ -66,21 +75,17 @@ function Home() {
         );
       }
 
-      // Clear input immediately
       setMessage("");
 
       return { previousMessages };
     },
     onSuccess: (data) => {
-      // Append the assistant response
       queryClient.setQueryData<Prisma.MessageUncheckedCreateInput[]>(
         ["messages"],
-        // (old) => (old ? [...old, data] : [data])
         (old) => (old ? [...old, ...data] : data)
       );
     },
     onError: (_err, _newMessage, context) => {
-      // Rollback to previous messages if error
       if (context?.previousMessages) {
         queryClient.setQueryData(["messages"], context.previousMessages);
       }
@@ -91,6 +96,16 @@ function Home() {
     e.preventDefault();
     if (!message.trim()) return;
     mutation.mutate(message.trim());
+  };
+
+  const handleVoiceInput = () => {
+    setShowModal(true);
+    startListening();
+  };
+
+  const handleCancelRecording = () => {
+    stopListening();
+    setShowModal(false);
   };
 
   return (
@@ -122,6 +137,13 @@ function Home() {
             className="grow px-4 py-2 rounded-full h-14 bg-white"
           />
           <Button
+            type="button"
+            className="h-14 w-14 rounded-full"
+            onClick={handleVoiceInput}
+          >
+            <Mic size={22} />
+          </Button>
+          <Button
             type="submit"
             className="h-14 w-14 rounded-full"
             disabled={mutation.isPending}
@@ -130,6 +152,14 @@ function Home() {
           </Button>
         </form>
       </section>
+
+      <Dialog open={showModal}>
+        <DialogContent>
+          <DialogTitle>Speak your message</DialogTitle>
+          <h2 className="text-xl font-semibold mb-4">Listening...</h2>
+          <Button onClick={handleCancelRecording}>Stop</Button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -7,7 +7,7 @@ import { Type } from "@google/genai";
 export const exportTransactionsCSVFunctionDeclaration = {
   name: "export_transactions_csv",
   description:
-    "Export all transactions within a specified time period as a CSV and return status of the upload.",
+    "Export all transactions within a specified time period as a CSV and return status of the upload. dates are optional adn don't ask if the user doesn't ask implicitly. If no dates are provided, all transactions will be exported.",
   parameters: {
     type: Type.OBJECT,
     properties: {

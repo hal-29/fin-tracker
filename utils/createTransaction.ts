@@ -20,7 +20,7 @@ export const createTransactionFunctionDeclaration = {
       category: {
         type: Type.STRING,
         description:
-          "The category of the transaction. use one of the following (groceries, electronics, clothing, hobbies, bills, utilities).",
+          "The category of the transaction. use from one of the following (groceries, electronics, clothing, hobbies, bills, utilities) which you think is more closer.",
       },
       description: {
         type: Type.STRING,
