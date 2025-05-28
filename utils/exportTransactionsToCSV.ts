@@ -14,12 +14,17 @@ export const exportTransactionsCSVFunctionDeclaration = {
       fromDate: {
         type: Type.STRING,
         description:
-          "Start date for filtering transactions to export . Format: UTC ISO 8601 (e.g., 2023-01-01T00:00:00Z).",
+          "Start date for filtering transactions to export . Format: UTC ISO 8601 (e.g., 2023-01-01T00:00:00Z). If not provided, all transactions will exported unless there's 'toDate' is passed.",
       },
       toDate: {
         type: Type.STRING,
         description:
-          "End date for filtering transactions to export . Format: UTC ISO 8601 (e.g., 2023-01-31T23:59:59Z).",
+          "End date for filtering transactions to export . Format: UTC ISO 8601 (e.g., 2023-01-31T23:59:59Z). If not provided, all transactions will be exported unless there's 'fromDate' is passed.",
+      },
+      currency: {
+        type: Type.STRING,
+        description:
+          "he 3-letter currency code to convert from (e.g., USD, EUR). If not provided, all transactions will be exported without conversion.",
       },
     },
   },

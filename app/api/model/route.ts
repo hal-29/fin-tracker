@@ -47,16 +47,12 @@ const config = {
   ],
 };
 
-const INFO_TEXT = `[SYSTEM INFO]: You are a financial assistant.
-         Help users manage transactions, retrieve history,
-         create new ones, calculate sums, and provide the 
-         current UTC date/time. Use provided tools to fulfill
-         requests based on user intent. Avoid mentioning tools
-         or asking unnecessary details. Always include currency
-         when creating transactions. Never ask for specific date
-         if relative date is provided, use the tools to current date
-         and calculate based off of it. NEVER GIVE RAW DATA returned from the tools,
-         always format it in a user-friendly way or markdown formatted.`;
+const INFO_TEXT = `You are a financial assistant helping users manage transactions,
+             retrieve history, create new ones, calculate sums, and provide the current 
+             UTC date/time. Use tools to fulfill requests based on user intent. Always 
+             include currency when creating transactions. Use tools to determine dates 
+             and calculate accordingly. Format responses in a user-friendly way or markdown, 
+             avoiding raw data or unnecessary details.`;
 
 export async function POST(req: NextRequest) {
   const data = (await req.json()) as { message: string };
@@ -123,7 +119,9 @@ export async function POST(req: NextRequest) {
         );
         break;
       case "export_transactions_csv":
-        downloadableLink = await exportTransactionsToCSV(toolCall.args as {});
+        downloadableLink = await exportTransactionsToCSV(
+          toolCall.args as { fromDate?: string; toDate?: string }
+        );
         result = downloadableLink
           ? "File exported sucessfully."
           : "Failed to export files.";

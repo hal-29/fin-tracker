@@ -2,8 +2,9 @@ import { Type } from "@google/genai";
 
 export const getCurrentDateFunctionDeclaration = {
   name: "get_current_date",
-  description:
-    "Retrieves the current date and time in UTC. It can be used as a referance time to calculate relative times like, yesterday, tommorow, today, last week, last month, etc.",
+  description: `Retrieves the current date and time in UTC. It can be used as
+      a referance time to calculate relative times like, yesterday,
+      tommorow, today, last week, last month, etc.`,
   parameters: {
     type: Type.OBJECT,
     properties: {},

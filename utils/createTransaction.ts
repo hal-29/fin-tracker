@@ -20,7 +20,7 @@ export const createTransactionFunctionDeclaration = {
       category: {
         type: Type.STRING,
         description:
-          "The category of the transaction. use one of the following (groceries, electronics, clothing, hobbies, bills, utilities) ).",
+          "The category of the transaction. use one of the following (groceries, electronics, clothing, hobbies, bills, utilities).",
       },
       description: {
         type: Type.STRING,
@@ -29,7 +29,7 @@ export const createTransactionFunctionDeclaration = {
       currency: {
         type: Type.STRING,
         description:
-          "The currency of the transaction (e.g., 'USD', 'ETB', 'EUR'). if it's not specified use 'ETB' as default.",
+          "The currency of the transaction (e.g., 'USD', 'ETB', 'EUR'). Currency must be provided.",
       },
     },
     required: ["amount", "date", "category", "description"],
