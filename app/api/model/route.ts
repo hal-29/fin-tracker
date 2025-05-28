@@ -16,6 +16,9 @@ import {
   calculateSum,
   calculateSumFunctionDeclaration,
 } from "@/utils/calculateSum";
+import exportTransactionsToCSV, {
+  exportTransactionsCSVFunctionDeclaration,
+} from "@/utils/exportTransactionsToCSV";
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
@@ -29,6 +32,7 @@ const config = {
         createTransactionFunctionDeclaration,
         getCurrentDateFunctionDeclaration,
         calculateSumFunctionDeclaration,
+        exportTransactionsCSVFunctionDeclaration,
       ],
     },
   ],
@@ -42,7 +46,8 @@ const INFO_TEXT = `[SYSTEM INFO]: You are a financial assistant.
          or asking unnecessary details. Always include currency
          when creating transactions. Never ask for specific date
          if relative date is provided, use the tools to current date
-         and calculate based off of it.`;
+         and calculate based off of it. NEVER GIVE RAW DATA returned from the tools,
+         always format it in a user-friendly way or markdown formatted.`;
 
 export async function POST(req: NextRequest) {
   const data = (await req.json()) as { message: string };
@@ -51,7 +56,8 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "message is required" }, { status: 400 });
 
   const lastMessages = await prisma.message.findMany({
-    take: 5,
+    where: { sender: { not: "FILE" } },
+    take: 10,
     orderBy: { createdAt: "desc" },
   });
 
@@ -67,8 +73,9 @@ export async function POST(req: NextRequest) {
 
   let loopCount = 0;
   let finalText = "";
+  let downloadableLink: string | null = null;
 
-  while (loopCount++ < 5) {
+  while (loopCount++ < 10) {
     const response = await ai.models.generateContent({
       model: "gemini-2.0-flash",
       config,
@@ -100,11 +107,17 @@ export async function POST(req: NextRequest) {
         result = await getCurrentDate();
         break;
       case "calculate_sum":
-        result = calculateSum(
+        calculateSum(
           toolCall.args as {
             transactions: { amount: number; currency: string }[];
           }
         );
+        break;
+      case "export_transactions_csv":
+        downloadableLink = await exportTransactionsToCSV();
+        result = downloadableLink
+          ? "File exported sucessfully."
+          : "Failed to export files.";
         break;
       default:
         return NextResponse.json(
@@ -124,7 +137,7 @@ export async function POST(req: NextRequest) {
       role: "user",
       parts: [
         {
-          text: result,
+          text: result!,
         },
       ],
     });
@@ -137,12 +150,25 @@ export async function POST(req: NextRequest) {
       content: data.message,
     },
   });
-  await prisma.message.create({
+  const modelMessage = await prisma.message.create({
     data: {
       sender: "ASSISTANT",
       content: finalText,
     },
   });
+  let fileMessage;
+  if (downloadableLink) {
+    fileMessage = await prisma.message.create({
+      data: {
+        sender: "FILE",
+        content: "transactions.csv",
+        link: downloadableLink,
+      },
+    });
+  }
 
-  return NextResponse.json({ message: finalText }, { status: 201 });
+  const returns = [modelMessage];
+  if (fileMessage) returns.push(fileMessage);
+
+  return NextResponse.json(returns, { status: 201 });
 }

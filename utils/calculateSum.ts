@@ -2,7 +2,7 @@ import { Type } from "@google/genai";
 
 export const calculateSumFunctionDeclaration = {
   name: "calculate_sum",
-  description: "Calculates the sum of transaction amounts.",
+  description: "Calculates the sum of transaction amounts with each currency.",
   parameters: {
     type: Type.OBJECT,
     properties: {

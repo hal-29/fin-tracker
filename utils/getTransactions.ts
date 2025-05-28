@@ -3,7 +3,8 @@ import { Type } from "@google/genai";
 
 export const getTransactionFunctionDeclaration = {
   name: "get_all_transactions",
-  description: "Retrieves all transactions from the database.",
+  description:
+    "Retrieves all transactions from the database. it retirieves all the items bought with their date bought and categories.",
   parameters: {
     type: Type.OBJECT,
     properties: {

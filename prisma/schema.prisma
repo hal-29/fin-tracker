@@ -12,6 +12,7 @@ generator client {
 enum SenderType {
    USER
    ASSISTANT
+   FILE
 }
 
 model Transaction {
@@ -29,6 +30,7 @@ model Message {
    id        Int        @id @default(autoincrement())
    content   String
    sender    SenderType
+   link      String?
    createdAt DateTime   @default(now())
    updatedAt DateTime   @updatedAt
 }

@@ -3,7 +3,8 @@ import { Type } from "@google/genai";
 
 export const createTransactionFunctionDeclaration = {
   name: "create_transaction",
-  description: "Creates a new transaction in the database.",
+  description:
+    "Creates a new transaction in the database. iti has the groceries, electronics, clothing, hobbies, bills, utilities categories",
   parameters: {
     type: Type.OBJECT,
     properties: {
@@ -19,7 +20,7 @@ export const createTransactionFunctionDeclaration = {
       category: {
         type: Type.STRING,
         description:
-          "The category of the transaction. use one of the following (groceries, electronics, clothing, hobbies) ).",
+          "The category of the transaction. use one of the following (groceries, electronics, clothing, hobbies, bills, utilities) ).",
       },
       description: {
         type: Type.STRING,
