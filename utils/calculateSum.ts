@@ -4,7 +4,7 @@ import { Type } from "@google/genai";
 export const calculateSumFunctionDeclaration = {
   name: "calculate_sum",
   description:
-    "Calculates the amount of transaction made. optional date filtering parameters can be passed to be specfic. Returns a JSON object with the total amount for each currency.",
+    "Calculates the amount of money spend for the transactions. optional date filtering parameters can be passed to be specfic. Returns a JSON object with the total amount for each currency.",
   parameters: {
     type: Type.OBJECT,
     properties: {
@@ -21,7 +21,7 @@ export const calculateSumFunctionDeclaration = {
     },
     description:
       "Optional parameters to specify the time period of the transactions made.",
-    required: ["transactions"],
+    required: [],
   },
 };
 
