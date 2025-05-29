@@ -11,6 +11,8 @@ import {
 import prisma from "@/db";
 import { formatDate } from "date-fns";
 
+export const dynamic = "force-dynamic";
+
 async function Transactions() {
   const transactions = await prisma.transaction.findMany();
 
